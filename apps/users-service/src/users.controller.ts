@@ -19,7 +19,7 @@ export class UsersController {
   }
 
   @MessagePattern('users.read')
-  read(@Payload(ParseIntPipe) id: number) {
+  read(@Payload('id', ParseIntPipe) id: number) {
     return this.usersService.read(id);
   }
 
@@ -29,7 +29,7 @@ export class UsersController {
   }
 
   @MessagePattern('users.delete')
-  delete(@Payload(ParseIntPipe) id: number) {
+  delete(@Payload('id', ParseIntPipe) id: number) {
     return this.usersService.delete(id);
   }
 }

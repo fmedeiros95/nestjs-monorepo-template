@@ -7,9 +7,15 @@ import { UsersController } from './controllers/users.controller';
     ClientsModule.register([
       {
         name: 'USERS_SERVICE',
-        transport: Transport.TCP,
+        transport: Transport.KAFKA,
         options: {
-          port: 3001,
+          client: {
+            clientId: 'users-service',
+            brokers: ['localhost:9092'],
+          },
+          consumer: {
+            groupId: 'users-service-consumer',
+          },
         },
       },
     ]),

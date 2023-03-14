@@ -1,9 +1,17 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { Body, Controller, Delete, Get, Inject, OnModuleInit, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { ClientKafka } from '@nestjs/microservices';
 
 @Controller('users')
-export class UsersController {
-  constructor(@Inject('USERS_SERVICE') private readonly client: ClientProxy) {}
+export class UsersController implements OnModuleInit {
+  constructor(@Inject('USERS_SERVICE') private readonly client: ClientKafka) {}
+
+  onModuleInit() {
+    const requestPatterns = ['users.list', 'users.create', 'users.read', 'users.update', 'users.delete'];
+    requestPatterns.forEach(async pattern => {
+      this.client.subscribeToResponseOf(pattern);
+      await this.client.connect();
+    });
+  }
 
   @Get()
   list() {
@@ -16,7 +24,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  read(@Param('id', ParseIntPipe) id: number) {
+  async read(@Param('id', ParseIntPipe) id: number) {
     return this.client.send('users.read', { id });
   }
 
